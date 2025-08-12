@@ -1,5 +1,7 @@
 # Squid Proxy Whitelist Editor
 
+**Repository**: https://github.com/coledykstra7/docker-whitelist
+
 ## Project Purpose
 This project provides a web-based editor for managing Squid proxy whitelist and blacklist files, viewing access logs, and reloading Squid configuration. It is designed to simplify the administration of Squid proxy rules and monitoring.
 
