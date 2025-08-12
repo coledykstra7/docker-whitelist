@@ -14,31 +14,33 @@ type Row struct {
 }
 
 // LogEntry represents a parsed squid log line
-// Format: timestamp tag method status_code host url
-// Example: "1712175100.000 WL GET 200 example.com example.com:80"
+// Format: timestamp tag client-ip method status host url
+// Example: "1712175100.000 WL 192.168.1.1 GET 200 example.com example.com:80"
 type LogEntry struct {
 	Timestamp   string // Field 0: Unix timestamp with milliseconds
 	Tag         string // Field 1: WL/BL/RG (injected by mergeLogFiles)
-	Method      string // Field 2: HTTP method (GET, POST, etc.)
-	StatusCode  string // Field 3: HTTP status code (200, 404, etc.)
-	Host        string // Field 4: Domain/hostname
-	URL         string // Field 5: Full URL
+	ClientIP    string // Field 2: Client IP address
+	Method      string // Field 3: HTTP method (GET, POST, etc.)
+	StatusCode  string // Field 4: HTTP status code (200, 404, etc.)
+	Host        string // Field 5: Domain/hostname
+	URL         string // Field 6: Full URL
 }
 
 // ParseLogEntry parses a space-separated log line into a LogEntry struct
 func ParseLogEntry(line string) (*LogEntry, error) {
 	fields := strings.Fields(line)
-	if len(fields) < 6 {
-		return nil, fmt.Errorf("insufficient fields: expected 6, got %d", len(fields))
+	if len(fields) < 7 {
+		return nil, fmt.Errorf("insufficient fields: expected 7, got %d", len(fields))
 	}
 	
 	return &LogEntry{
 		Timestamp:  fields[0],
 		Tag:        fields[1],
-		Method:     fields[2],
-		StatusCode: fields[3],
-		Host:       fields[4],
-		URL:        fields[5],
+		ClientIP:   fields[2],
+		Method:     fields[3],
+		StatusCode: fields[4],
+		Host:       fields[5],
+		URL:        fields[6],
 	}, nil
 }
 

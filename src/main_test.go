@@ -21,9 +21,9 @@ func TestExtractDomain(t *testing.T) {
 
 func TestBuildAccessLogSummaryFromLog(t *testing.T) {
 	log := "" +
-		"1712175100.000 WL GET 200 example.com example.com:80\n" +
-		"1712175101.000 BL GET 200 blocked.com blocked.com:443\n" +
-		"1712175102.000 WL GET 200 example.com example.com:80\n"
+		"1712175100.000 WL 192.168.1.1 GET 200 example.com example.com:80\n" +
+		"1712175101.000 BL 192.168.1.1 GET 200 blocked.com blocked.com:443\n" +
+		"1712175102.000 WL 192.168.1.1 GET 200 example.com example.com:80\n"
 	summary := buildAccessLogSummaryFromLog(log)
 	if !containsAll(summary, []string{"example.com", "blocked.com", "✅", "❌"}) {
 		t.Fatalf("summary missing expected tokens:\n%s", summary)
