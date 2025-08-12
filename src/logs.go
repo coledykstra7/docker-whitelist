@@ -35,20 +35,18 @@ func computeSummaryRows(logText, whitelist, blacklist string) []Row {
 	latestUrl := make(map[string]string)
 	
 	for _, line := range strings.Split(logText, "\n") {
-		parts := strings.Fields(line)
-		if len(parts) < 6 {
-			continue
+		entry, err := ParseLogEntry(line)
+		if err != nil {
+			continue // Skip malformed lines
 		}
-		host := parts[4] // domain is in the 5th field
+		
+		host := entry.Host
 		if host == "" {
 			continue
 		}
-		tag := "RG" // default tag for regular log
-		if len(parts) > 1 {
-			tag = parts[1]
-		}
+		
 		var status string
-		switch tag {
+		switch entry.Tag {
 		case "WL":
 			status = "✅"
 		case "BL":
@@ -64,7 +62,7 @@ func computeSummaryRows(logText, whitelist, blacklist string) []Row {
 		} else {
 			counts[host] = stat{val.count + 1, status}
 		}
-		latestUrl[host] = host
+		latestUrl[host] = entry.URL
 	}
 	
 	type kv struct {
@@ -169,7 +167,8 @@ func mergeLogFiles() string {
 			if len(f) == 0 {
 				continue
 			}
-			// Skip lines where the 4th field (return status code) is "0" 
+			// Skip lines where the status code is "0" 
+			// Original squid format: timestamp client-ip method status host url
 			// Status code 0 indicates connection errors/failures, not actual requests
 			if len(f) >= 4 && f[3] == "0" {
 				continue
