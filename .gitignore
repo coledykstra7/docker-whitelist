@@ -1,0 +1,32 @@
+
+# Runtime artifacts and binaries
+server.pid
+squid-editor
+
+# Log files
+data/*.log
+*.log
+
+# Go build/test artifacts
+*.out
+coverage.out
+
+# Editor swap/backup files
+*~
+*.swp
+
+# Node modules
+node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+
+# VS Code settings
+.vscode/
+
+# Docker Compose override files
+docker-compose.override.yml

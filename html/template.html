@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Squid Proxy List Editor</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:24px;}
+textarea{width:100%;max-width:900px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;}
+button{padding:8px 12px;}
+.summary-box{background:#e9f5e9;border:2px solid #b2d8b2;border-radius:8px;padding:16px;margin:24px 0;max-width:900px;box-shadow:0 2px 8px #0001;}
+#log{background:#111;color:#eee;padding:12px;border-radius:6px;max-width:900px;white-space:pre-wrap;font-size:12px;line-height:1.25em;}
+.log-WL{color:#4ade80;font-weight:600}
+.log-BL{color:#f87171;font-weight:600}
+.log-RG{color:#93c5fd}
+table.summary-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+table.summary-table tr{height:26px;}
+table.summary-table tr.even{background:#f6faf6;}
+table.summary-table tr.odd{background:#e9f5e9;}
+table.summary-table th,table.summary-table td{border:1px solid #b2d8b2;padding:4px 8px;text-align:left;}
+table.summary-table th{background:#d6ead6;}
+.status{font-weight:600;padding:0 4px;}
+.whitelist{color:#228B22}.blacklist{color:#B22222}.unknown{color:#666}
+.ctrl-panel{position:fixed;top:8px;right:12px;background:#ffffffdd;padding:6px 12px 10px;border:1px solid #ccc;border-radius:6px;font-size:.75rem;backdrop-filter:blur(4px);text-align:right;max-width:220px;}
+.ctrl-panel button{margin-left:4px;padding:4px 8px;font-size:.7rem;}
+</style>
+<script src="/static/template.js"></script>
+</head>
+<body>
+<div class="ctrl-panel"><div><strong>Controls</strong></div><div style="margin-top:4px">Squid: <span id="squidStatus">...</span> <button id="reloadBtn" type="button" onclick="reloadSquid()">Reload</button></div><div style="margin-top:4px"><label><input type="checkbox" id="autoRefresh" checked/> Auto-Refresh (5s)</label></div><div style="margin-top:4px">Setpoint: <span id="setpointDisplay">none</span><button type="button" onclick="setSetpoint()">Set</button><button type="button" onclick="clearSetpoint()">Clear</button></div></div>
+<h1>Squid Proxy List Editor</h1>
+<form method="POST" action="/save"><div class="grid"><div><h2>Whitelist</h2><textarea name="whitelist" rows="14" spellcheck="false">{{.Whitelist}}</textarea></div><div><h2>Blacklist</h2><textarea name="blacklist" rows="14" spellcheck="false">{{.Blacklist}}</textarea></div></div><p><button type="submit">Save</button></p></form>
+<h2>Access Log Summary (Live)</h2>
+<div class="summary-box" id="summary-box">
+    <div style="margin-bottom:8px">
+        <label><input type="checkbox" id="filterWL" checked> WL (✅)</label>
+        <label><input type="checkbox" id="filterBL" checked> BL (❌)</label>
+        <label><input type="checkbox" id="filterRG" checked> RG (❓)</label>
+    </div>
+    <div id="summary"></div>
+    <p><span class="status whitelist">✅ Whitelisted</span> <span class="status blacklist">❌ Blacklisted</span> <span class="status unknown">❓ Unknown</span></p>
+</div>
+<h2>Access Log (Live Tail 50 lines)</h2>
+<pre id="log">(waiting for log...)</pre>
+</body>
+</html>

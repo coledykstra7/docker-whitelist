@@ -1,0 +1,4 @@
+# blacklist.txt
+.google.com
+.firefox.com
+.mozilla.com

@@ -1,0 +1,30 @@
+services:
+  squid-whitelist-proxy:
+    build: .
+    container_name: squid-whitelist-proxy
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+  squid-editor:
+    build:
+      context: .
+      dockerfile: Dockerfile.editor
+    container_name: squid-editor
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+      - ./html:/app/html
+      # Allow editor to reload squid via docker exec (security sensitive)
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
