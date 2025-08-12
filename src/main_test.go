@@ -24,9 +24,7 @@ func TestBuildAccessLogSummaryFromLog(t *testing.T) {
 		"1712175100.000 WL GET 200 example.com example.com:80\n" +
 		"1712175101.000 BL GET 200 blocked.com blocked.com:443\n" +
 		"1712175102.000 WL GET 200 example.com example.com:80\n"
-	whitelist := "example.com\n# comment\n"
-	blacklist := "blocked.com\n"
-	summary := buildAccessLogSummaryFromLog(log, whitelist, blacklist)
+	summary := buildAccessLogSummaryFromLog(log)
 	if !containsAll(summary, []string{"example.com", "blocked.com", "✅", "❌"}) {
 		t.Fatalf("summary missing expected tokens:\n%s", summary)
 	}

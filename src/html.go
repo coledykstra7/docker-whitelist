@@ -25,7 +25,7 @@ func buildTableHTML(rows []Row) string {
 }
 
 // buildAccessLogSummaryFromLog builds summary from log for test compatibility
-func buildAccessLogSummaryFromLog(log, whitelist, blacklist string) string {
-	rows := computeSummaryRows(log, whitelist, blacklist)
+func buildAccessLogSummaryFromLog(log string) string {
+	rows := computeSummaryRows(log)
 	return buildTableHTML(rows)
 }

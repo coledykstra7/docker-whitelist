@@ -6,26 +6,8 @@ import (
 	"strings"
 )
 
-// computeSummaryRows builds summary rows from log/whitelist/blacklist
-func computeSummaryRows(logText, whitelist, blacklist string) []Row {
-	wset := make(map[string]struct{})
-	for _, line := range strings.Split(whitelist, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		wset[line] = struct{}{}
-	}
-	
-	bset := make(map[string]struct{})
-	for _, line := range strings.Split(blacklist, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		bset[line] = struct{}{}
-	}
-	
+// computeSummaryRows builds summary rows from log entries with embedded tags
+func computeSummaryRows(logText string) []Row {
 	// Status by log tag: WL=✅, BL=❌, RG=❓
 	type stat struct {
 		count  int

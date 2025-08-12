@@ -72,10 +72,8 @@ func handleHome(c *gin.Context) {
 
 // handleSummary provides live summary box content
 func handleSummary(c *gin.Context) {
-	wl := readFile(whitelistPath)
-	bl := readFile(blacklistPath)
 	log := mergeLogFiles()
-	summary := buildAccessLogSummaryFromLog(log, wl, bl)
+	summary := buildAccessLogSummaryFromLog(log)
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, summary)
 }
