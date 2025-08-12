@@ -74,7 +74,7 @@ func handleHome(c *gin.Context) {
 func handleSummary(c *gin.Context) {
 	wl := readFile(whitelistPath)
 	bl := readFile(blacklistPath)
-	log := readFile(accessLogPath)
+	log := mergeLogFiles()
 	summary := buildAccessLogSummaryFromLog(log, wl, bl)
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, summary)
@@ -82,7 +82,7 @@ func handleSummary(c *gin.Context) {
 
 // handleLog provides live log tail
 func handleLog(c *gin.Context) {
-	log := readFile(accessLogPath)
+	log := mergeLogFiles()
 	lines := strings.Split(log, "\n")
 	if len(lines) > MaxLogLines {
 		lines = lines[len(lines)-MaxLogLines:]

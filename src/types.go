@@ -15,7 +15,7 @@ const (
 	accessLogRegularPath   = "/data/access-regular.log"
 	accessLogWhitelistPath = "/data/access-whitelist.log"
 	accessLogBlacklistPath = "/data/access-blacklist.log"
-	accessLogPath          = accessLogRegularPath // backward compatibility (tests, legacy functions)
+	// Note: Access to individual log files should go through mergeLogFiles() function
 )
 
 // Application constants
