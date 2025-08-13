@@ -1,9 +1,9 @@
-.google.com
-.firefox.com
-.mozilla.com
-.googleapis.com
-www.googletagmanager.com
-ads.mozilla.org
-incoming.telemetry.mozilla.org #essentialed.com
 mozilla.cloudflare-dns.com #essentialed.com
-pt.wisernotify.com #essentialed.com
+order.essentialed.com #essentialed.com
+detectportal.firefox.com #essentialed.com
+translate.google.com #essentialed.com
+www.google.com #essentialed.com
+www.googletagmanager.com #essentialed.com
+ads.mozilla.org #essentialed.com
+merino.services.mozilla.com #essentialed.com
+firefox.settings.services.mozilla.com #essentialed.com

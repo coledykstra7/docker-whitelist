@@ -180,7 +180,7 @@ function renderListTable(listType, content) {
         moveBtn.type = 'button';  // Prevent form submission
         moveBtn.className = listType === 'whitelist' ? 'action-btn bl' : 'action-btn wl';
         moveBtn.textContent = listType === 'whitelist' ? ACTION_BUTTONS.TO_BLACKLIST : ACTION_BUTTONS.TO_WHITELIST;
-        moveBtn.onclick = () => moveFromList(entry.domain, listType, listType === 'whitelist' ? 'blacklist' : 'whitelist');
+        moveBtn.onclick = () => moveFromList(entry.domain, listType, listType === 'whitelist' ? 'blacklist' : 'whitelist', entry.note);
         
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';  // Prevent form submission
@@ -255,11 +255,11 @@ function addToList(listType) {
     });
 }
 
-function moveFromList(domain, fromList, toList) {
+function moveFromList(domain, fromList, toList, note = '') {
     const data = new FormData();
     data.append('domain', domain);
     data.append('target', toList);
-    data.append('note', ''); // No note when moving existing entries
+    data.append('note', note); // Preserve existing note when moving
     
     fetch('/move-domain', { 
         method: 'POST',

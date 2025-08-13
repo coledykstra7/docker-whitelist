@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"strings"
 )
 
@@ -69,4 +70,98 @@ func extractDomain(url string) string {
 		url = url[:i]
 	}
 	return url
+}
+
+// DomainEntry represents a domain list entry with domain and optional note
+type DomainEntry struct {
+	Domain string
+	Note   string
+	Full   string // The full line including note
+}
+
+// parseDomainEntry parses a domain list line into domain and note parts
+func parseDomainEntry(line string) DomainEntry {
+	line = strings.TrimSpace(line)
+	if line == "" || strings.HasPrefix(line, "#") {
+		return DomainEntry{}
+	}
+	
+	parts := strings.SplitN(line, "#", 2)
+	domain := strings.TrimSpace(parts[0])
+	note := ""
+	if len(parts) > 1 {
+		note = strings.TrimSpace(parts[1])
+	}
+	
+	return DomainEntry{
+		Domain: domain,
+		Note:   note,
+		Full:   line,
+	}
+}
+
+// sortDomainsByParts sorts domains by reverse domain parts, ignoring TLD
+func sortDomainsByParts(a, b string) bool {
+	split := func(domain string) ([]string, string) {
+		parts := strings.Split(domain, ".")
+		if len(parts) < 2 {
+			return parts, ""
+		}
+		tld := parts[len(parts)-1]
+		sub := parts[:len(parts)-1]
+		for l, r := 0, len(sub)-1; l < r; l, r = l+1, r-1 {
+			sub[l], sub[r] = sub[r], sub[l]
+		}
+		return sub, tld
+	}
+	
+	aSub, aTld := split(a)
+	bSub, bTld := split(b)
+	for x := 0; x < len(aSub) && x < len(bSub); x++ {
+		if aSub[x] != bSub[x] {
+			return aSub[x] < bSub[x]
+		}
+	}
+	if len(aSub) != len(bSub) {
+		return len(aSub) < len(bSub)
+	}
+	return aTld < bTld
+}
+
+// sortDomainEntries sorts domain entries by note first, then by domain parts
+func sortDomainEntries(entries []DomainEntry) {
+	sort.Slice(entries, func(i, j int) bool {
+		// First sort by note (alphabetically)
+		if entries[i].Note != entries[j].Note {
+			return entries[i].Note < entries[j].Note
+		}
+		// Then sort by domain parts in reverse order
+		return sortDomainsByParts(entries[i].Domain, entries[j].Domain)
+	})
+}
+
+// sortAndJoinDomainList takes a slice of domain strings, sorts them by note then domain parts, and joins them
+func sortAndJoinDomainList(domains []string) string {
+	if len(domains) == 0 {
+		return ""
+	}
+	
+	// Parse entries
+	entries := make([]DomainEntry, 0, len(domains))
+	for _, domain := range domains {
+		if entry := parseDomainEntry(domain); entry.Domain != "" {
+			entries = append(entries, entry)
+		}
+	}
+	
+	// Sort entries
+	sortDomainEntries(entries)
+	
+	// Convert back to strings
+	result := make([]string, len(entries))
+	for i, entry := range entries {
+		result[i] = entry.Full
+	}
+	
+	return strings.Join(result, "\n")
 }

@@ -44,8 +44,15 @@ func registerRoutes(r *gin.Engine) {
 func handleSave(c *gin.Context) {
 	wl := c.PostForm("whitelist")
 	bl := c.PostForm("blacklist")
-	err1 := writeFile(whitelistPath, wl)
-	err2 := writeFile(blacklistPath, bl)
+	
+	// Sort the domain lists before saving
+	wlDomains := parseDomainList(wl)
+	blDomains := parseDomainList(bl)
+	sortedWL := sortAndJoinDomainList(wlDomains)
+	sortedBL := sortAndJoinDomainList(blDomains)
+	
+	err1 := writeFile(whitelistPath, sortedWL)
+	err2 := writeFile(blacklistPath, sortedBL)
 	if err1 != nil || err2 != nil {
 		c.String(http.StatusInternalServerError, "save error: %v %v", err1, err2)
 		return
@@ -173,9 +180,9 @@ func handleMoveDomain(c *gin.Context) {
 	// "unknown" means just remove from both lists (already done above)
 	}
 	
-	// Write back to files
-	newWhitelistContent := strings.Join(whitelistDomains, "\n")
-	newBlacklistContent := strings.Join(blacklistDomains, "\n")
+	// Sort domain lists by note first, then by domain parts
+	newWhitelistContent := sortAndJoinDomainList(whitelistDomains)
+	newBlacklistContent := sortAndJoinDomainList(blacklistDomains)
 	
 	err1 := writeFile(whitelistPath, newWhitelistContent)
 	err2 := writeFile(blacklistPath, newBlacklistContent)

@@ -58,29 +58,7 @@ func computeSummaryRows(logText string) []Row {
 	
 	// Sort by domain parts in reverse order, ignoring TLD
 	sort.Slice(arr, func(i, j int) bool {
-		split := func(domain string) ([]string, string) {
-			parts := strings.Split(domain, ".")
-			if len(parts) < 2 {
-				return parts, ""
-			}
-			tld := parts[len(parts)-1]
-			sub := parts[:len(parts)-1]
-			for l, r := 0, len(sub)-1; l < r; l, r = l+1, r-1 {
-				sub[l], sub[r] = sub[r], sub[l]
-			}
-			return sub, tld
-		}
-		aSub, aTld := split(arr[i].k)
-		bSub, bTld := split(arr[j].k)
-		for x := 0; x < len(aSub) && x < len(bSub); x++ {
-			if aSub[x] != bSub[x] {
-				return aSub[x] < bSub[x]
-			}
-		}
-		if len(aSub) != len(bSub) {
-			return len(aSub) < len(bSub)
-		}
-		return aTld < bTld
+		return sortDomainsByParts(arr[i].k, arr[j].k)
 	})
 	
 	rows := make([]Row, 0, len(arr))
