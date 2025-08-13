@@ -31,9 +31,6 @@ func registerRoutes(r *gin.Engine) {
 	r.Static("/static", "html")
 	r.POST("/save", handleSave)
 	r.POST("/reload", handleReload)
-	r.POST("/clear-whitelist", handleClearWhitelistLog)
-	r.POST("/clear-blacklist", handleClearBlacklistLog)
-	r.POST("/clear-regular", handleClearRegularLog)
 	r.POST("/clear-all-logs", handleClearAllLogs)
 	r.POST("/move-domain", handleMoveDomain)
 	r.GET("/", handleHome)
@@ -67,36 +64,6 @@ func handleReload(c *gin.Context) {
 	// brief delay to allow reconfigure
 	time.Sleep(300 * time.Millisecond)
 	c.JSON(http.StatusOK, gin.H{"status": squidStatus()})
-}
-
-// handleClearWhitelistLog clears the whitelist access log
-func handleClearWhitelistLog(c *gin.Context) {
-	err := writeFile(accessLogWhitelistPath, "")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "whitelist log cleared"})
-}
-
-// handleClearBlacklistLog clears the blacklist access log
-func handleClearBlacklistLog(c *gin.Context) {
-	err := writeFile(accessLogBlacklistPath, "")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "blacklist log cleared"})
-}
-
-// handleClearRegularLog clears the regular access log
-func handleClearRegularLog(c *gin.Context) {
-	err := writeFile(accessLogRegularPath, "")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "regular log cleared"})
 }
 
 // handleClearAllLogs clears all access logs (whitelist, blacklist, and regular)
