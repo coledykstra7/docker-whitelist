@@ -4,3 +4,4 @@
 .googleapis.com
 www.googletagmanager.com
 ads.mozilla.org
+incoming.telemetry.mozilla.org #essentialed.com

@@ -34,9 +34,11 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/clear-whitelist", handleClearWhitelistLog)
 	r.POST("/clear-blacklist", handleClearBlacklistLog)
 	r.POST("/clear-regular", handleClearRegularLog)
+	r.POST("/clear-all-logs", handleClearAllLogs)
 	r.POST("/move-domain", handleMoveDomain)
 	r.GET("/", handleHome)
 	r.GET("/summary", handleSummary)
+	r.GET("/summary-data", handleSummaryData)
 	r.GET("/log", handleLog)
 	r.GET("/lists", handleLists)
 }
@@ -97,6 +99,19 @@ func handleClearRegularLog(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "regular log cleared"})
 }
 
+// handleClearAllLogs clears all access logs (whitelist, blacklist, and regular)
+func handleClearAllLogs(c *gin.Context) {
+	err1 := writeFile(accessLogWhitelistPath, "")
+	err2 := writeFile(accessLogBlacklistPath, "")
+	err3 := writeFile(accessLogRegularPath, "")
+	
+	if err1 != nil || err2 != nil || err3 != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": fmt.Sprintf("errors: %v %v %v", err1, err2, err3)})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "all logs cleared"})
+}
+
 // handleHome serves the main page with whitelist/blacklist editor
 func handleHome(c *gin.Context) {
 	wl := readFile(whitelistPath)
@@ -127,6 +142,13 @@ func handleSummary(c *gin.Context) {
 	c.String(http.StatusOK, summary)
 }
 
+// handleSummaryData provides summary data as JSON for filtering
+func handleSummaryData(c *gin.Context) {
+	log := mergeLogFiles()
+	rows := computeSummaryRows(log)
+	c.JSON(http.StatusOK, gin.H{"rows": rows})
+}
+
 // handleLog provides live log tail
 func handleLog(c *gin.Context) {
 	log := mergeLogFiles()
@@ -143,6 +165,7 @@ func handleLog(c *gin.Context) {
 func handleMoveDomain(c *gin.Context) {
 	domain := strings.TrimSpace(c.PostForm("domain"))
 	target := strings.TrimSpace(c.PostForm("target"))
+	note := strings.TrimSpace(c.PostForm("note"))
 	
 	if domain == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "domain is required"})
@@ -162,16 +185,24 @@ func handleMoveDomain(c *gin.Context) {
 	whitelistDomains := parseDomainList(whitelistContent)
 	blacklistDomains := parseDomainList(blacklistContent)
 	
-	// Remove domain from both lists first
-	whitelistDomains = removeDomain(whitelistDomains, domain)
-	blacklistDomains = removeDomain(blacklistDomains, domain)
+	// Remove domain from both lists first (strip any existing notes when removing)
+	whitelistDomains = removeDomainFromList(whitelistDomains, domain)
+	blacklistDomains = removeDomainFromList(blacklistDomains, domain)
 	
 	// Add to target list if not unknown
 	switch target {
 	case "whitelist":
-		whitelistDomains = append(whitelistDomains, domain)
+		entry := domain
+		if note != "" {
+			entry = fmt.Sprintf("%s #%s", domain, note)
+		}
+		whitelistDomains = append(whitelistDomains, entry)
 	case "blacklist":
-		blacklistDomains = append(blacklistDomains, domain)
+		entry := domain
+		if note != "" {
+			entry = fmt.Sprintf("%s #%s", domain, note)
+		}
+		blacklistDomains = append(blacklistDomains, entry)
 	// "unknown" means just remove from both lists (already done above)
 	}
 	
@@ -205,12 +236,14 @@ func parseDomainList(content string) []string {
 	return domains
 }
 
-// removeDomain removes a domain from a slice of domains
-func removeDomain(domains []string, target string) []string {
+// removeDomainFromList removes a domain from a slice of domains, handling entries with notes
+func removeDomainFromList(domains []string, target string) []string {
 	var result []string
-	for _, domain := range domains {
-		if domain != target {
-			result = append(result, domain)
+	for _, entry := range domains {
+		// Extract just the domain part (before any # comment)
+		domainPart := strings.TrimSpace(strings.Split(entry, "#")[0])
+		if domainPart != target {
+			result = append(result, entry)
 		}
 	}
 	return result

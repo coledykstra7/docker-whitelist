@@ -25,6 +25,15 @@ table.summary-table th{background:#d6ead6;}
 .action-btn.bl{background:#fef2f2;color:#dc2626;border-color:#fca5a5;}
 .action-btn.unknown{background:#f1f5f9;color:#475569;border-color:#cbd5e1;}
 .action-btn:hover{opacity:0.8;}
+.list-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-bottom:8px;}
+.list-table th,.list-table td{border:1px solid #ccc;padding:6px 8px;text-align:left;}
+.list-table th{background:#f5f5f5;font-weight:600;}
+.list-table tr:nth-child(even){background:#f9f9f9;}
+.list-table .actions-col{width:15%;}
+.list-table .domain-col{width:60%;}
+.list-table .note-col{width:25%;}
+.remove-btn{background:#fee;color:#c33;border:1px solid #fcc;padding:2px 6px;border-radius:3px;font-size:.7rem;cursor:pointer;}
+.remove-btn:hover{background:#fcc;}
 .status{font-weight:600;padding:0 4px;}
 .whitelist{color:#228B22}.blacklist{color:#B22222}.unknown{color:#666}
 .ctrl-panel{position:fixed;top:8px;right:12px;background:#ffffffdd;padding:6px 12px 10px;border:1px solid #ccc;border-radius:6px;font-size:.75rem;backdrop-filter:blur(4px);text-align:right;max-width:220px;}
@@ -38,14 +47,48 @@ table.summary-table th{background:#d6ead6;}
     <div style="margin-top:4px">Squid: <span id="squidStatus">...</span> <button id="reloadBtn" type="button" onclick="reloadSquid()">Reload</button></div>
     <div style="margin-top:4px"><label><input type="checkbox" id="autoRefresh" checked/> Auto-Refresh (5s)</label></div>
     <div style="margin-top:4px">
-        <strong>Clear Logs:</strong><br>
-        <button type="button" onclick="clearWhitelistLog()">Clear WL</button>
-        <button type="button" onclick="clearBlacklistLog()">Clear BL</button>
-        <button type="button" onclick="clearRegularLog()">Clear RG</button>
+        <button type="button" onclick="clearAllLogs()">Clear Logs</button>
     </div>
 </div>
 <h1>Squid Proxy List Editor</h1>
-<form method="POST" action="/save"><div class="grid"><div><h2>Whitelist</h2><textarea name="whitelist" rows="14" spellcheck="false">{{.Whitelist}}</textarea></div><div><h2>Blacklist</h2><textarea name="blacklist" rows="14" spellcheck="false">{{.Blacklist}}</textarea></div></div><p><button type="submit">Save</button></p></form>
+<div style="margin-bottom:16px;max-width:900px;">
+    <label for="domainNote" style="display:block;margin-bottom:4px;font-weight:600;">Note for new entries:</label>
+    <input type="text" id="domainNote" placeholder="e.g., alaska project, marketing team, etc." style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:14px;">
+    <small style="color:#666;">This note will be added to domains when using action buttons (→ WL, → BL) • <span style="color:#28a745;">Auto-saved</span></small>
+</div>
+<form method="POST" action="/save">
+    <div class="grid">
+        <div>
+            <h2>Whitelist</h2>
+            <div id="whitelist-table-container">
+                <table class="list-table" id="whitelist-table">
+                    <tr><th>Actions</th><th>Domain</th><th>Note</th></tr>
+                </table>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-wl-domain" placeholder="Add domain..." style="padding:4px;margin-right:4px;width:200px;">
+                    <input type="text" id="new-wl-note" placeholder="Note (optional)..." style="padding:4px;margin-right:4px;width:150px;">
+                    <button type="button" onclick="addToList('whitelist')" style="padding:4px 8px;">Add</button>
+                </div>
+            </div>
+            <textarea name="whitelist" id="whitelist-hidden" style="display:none;">{{.Whitelist}}</textarea>
+        </div>
+        <div>
+            <h2>Blacklist</h2>
+            <div id="blacklist-table-container">
+                <table class="list-table" id="blacklist-table">
+                    <tr><th>Actions</th><th>Domain</th><th>Note</th></tr>
+                </table>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-bl-domain" placeholder="Add domain..." style="padding:4px;margin-right:4px;width:200px;">
+                    <input type="text" id="new-bl-note" placeholder="Note (optional)..." style="padding:4px;margin-right:4px;width:150px;">
+                    <button type="button" onclick="addToList('blacklist')" style="padding:4px 8px;">Add</button>
+                </div>
+            </div>
+            <textarea name="blacklist" id="blacklist-hidden" style="display:none;">{{.Blacklist}}</textarea>
+        </div>
+    </div>
+    <p><button type="submit" onclick="return updateHiddenTextareas()">Save</button></p>
+</form>
 <h2>Access Log Summary (Live)</h2>
 <div class="summary-box" id="summary-box">
     <div style="margin-bottom:8px">
@@ -53,7 +96,7 @@ table.summary-table th{background:#d6ead6;}
         <label><input type="checkbox" id="filterBL" checked> BL (❌)</label>
         <label><input type="checkbox" id="filterRG" checked> RG (❓)</label>
     </div>
-    <div id="summary"></div>
+    <div id="summary-content"></div>
     <p><span class="status whitelist">✅ Whitelisted</span> <span class="status blacklist">❌ Blacklisted</span> <span class="status unknown">❓ Unknown</span></p>
 </div>
 <h2>Access Log (Live Tail 50 lines)</h2>
