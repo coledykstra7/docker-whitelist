@@ -13,14 +13,20 @@ function setSetpoint() {
         .then(res => res.json())
         .then(data => {
             document.getElementById('setpointDisplay').textContent = data.setpoint || 'set';
+        })
+        .catch(err => {
+            console.error('Error setting setpoint:', err);
         });
 }
 
 function clearSetpoint() {
-    fetch('/setpoint', { method: 'DELETE' })
+    fetch('/clear', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
             document.getElementById('setpointDisplay').textContent = 'none';
+        })
+        .catch(err => {
+            console.error('Error clearing setpoint:', err);
         });
 }
 

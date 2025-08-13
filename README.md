@@ -17,6 +17,7 @@ This project provides a web-based editor for managing Squid proxy whitelist and 
 - `GET /log` — Returns recent access log entries
 - `POST /save` — Saves changes to whitelist/blacklist files
 - `POST /reload` — Reloads Squid configuration
+- `POST /clear` — Sets a setpoint to filter logs after current time
 - `GET /static/template.js` — Serves static JS for the UI
 
 ## Build & Run Instructions

@@ -2,3 +2,4 @@
 .google.com
 .firefox.com
 .mozilla.com
+.googleapis.com
