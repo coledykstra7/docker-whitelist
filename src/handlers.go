@@ -16,8 +16,21 @@ var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { retu
 // Global setpoint for filtering logs (Unix timestamp)
 var logSetpoint float64 = 0
 
+// noCacheMiddleware adds strict no-cache headers to all responses
+func noCacheMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+		c.Next()
+	}
+}
+
 // registerRoutes sets up all HTTP routes
 func registerRoutes(r *gin.Engine) {
+	// Apply no-cache middleware to all routes
+	r.Use(noCacheMiddleware())
+	
 	r.Static("/static", "html")
 	r.POST("/save", handleSave)
 	r.POST("/reload", handleReload)
