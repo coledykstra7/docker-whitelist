@@ -14,14 +14,6 @@ const ACTION_BUTTONS = {
     TO_BLACKLIST: '👉🚫'
 };
 
-function reloadSquid() {
-    fetch('/reload', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('squidStatus').textContent = data.status || 'reloaded';
-        });
-}
-
 function clearAllLogs() {
     if (!confirm('Clear all access logs (WL, BL, and RG)? This cannot be undone.')) {
         return;
@@ -132,10 +124,6 @@ function updateLists() {
     fetch('/lists')
         .then(res => res.json())
         .then(data => {
-            // Update hidden textareas for form submission
-            document.getElementById('whitelist-hidden').value = data.whitelist;
-            document.getElementById('blacklist-hidden').value = data.blacklist;
-            
             // Update table displays
             renderListTable('whitelist', data.whitelist);
             renderListTable('blacklist', data.blacklist);
@@ -305,41 +293,6 @@ function removeFromList(domain, fromList) {
         console.error('Error removing domain:', err);
         alert('Error removing domain: ' + err.message);
     });
-}
-
-function updateHiddenTextareas() {
-    // Sync table data to hidden textareas before form submission
-    const whitelistEntries = [];
-    const blacklistEntries = [];
-    
-    // Extract whitelist data
-    const wlTable = document.getElementById('whitelist-table');
-    for (let i = 1; i < wlTable.rows.length; i++) {
-        const domain = wlTable.rows[i].cells[1].textContent; // Domain is now column 1
-        const note = wlTable.rows[i].cells[2].textContent;   // Note is now column 2
-        if (note) {
-            whitelistEntries.push(`${domain} #${note}`);
-        } else {
-            whitelistEntries.push(domain);
-        }
-    }
-    
-    // Extract blacklist data
-    const blTable = document.getElementById('blacklist-table');
-    for (let i = 1; i < blTable.rows.length; i++) {
-        const domain = blTable.rows[i].cells[1].textContent; // Domain is now column 1
-        const note = blTable.rows[i].cells[2].textContent;   // Note is now column 2
-        if (note) {
-            blacklistEntries.push(`${domain} #${note}`);
-        } else {
-            blacklistEntries.push(domain);
-        }
-    }
-    
-    document.getElementById('whitelist-hidden').value = whitelistEntries.join('\n');
-    document.getElementById('blacklist-hidden').value = blacklistEntries.join('\n');
-    
-    return true; // Allow form submission
 }
 
 function setupAutoRefresh() {

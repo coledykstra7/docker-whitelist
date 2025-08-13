@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -29,8 +28,6 @@ func registerRoutes(r *gin.Engine) {
 	r.Use(noCacheMiddleware())
 	
 	r.Static("/static", "html")
-	r.POST("/save", handleSave)
-	r.POST("/reload", handleReload)
 	r.POST("/clear-all-logs", handleClearAllLogs)
 	r.POST("/move-domain", handleMoveDomain)
 	r.GET("/", handleHome)
@@ -38,37 +35,6 @@ func registerRoutes(r *gin.Engine) {
 	r.GET("/summary-data", handleSummaryData)
 	r.GET("/log", handleLog)
 	r.GET("/lists", handleLists)
-}
-
-// handleSave processes whitelist/blacklist updates
-func handleSave(c *gin.Context) {
-	wl := c.PostForm("whitelist")
-	bl := c.PostForm("blacklist")
-	
-	// Parse domain lists
-	wlDomains := parseDomainList(wl)
-	blDomains := parseDomainList(bl)
-	
-	// Write using centralized function
-	err1 := writeDomainList("whitelist", wlDomains)
-	err2 := writeDomainList("blacklist", blDomains)
-	
-	if err1 != nil || err2 != nil {
-		c.String(http.StatusInternalServerError, "save error: %v %v", err1, err2)
-		return
-	}
-	c.Redirect(http.StatusSeeOther, "/")
-}
-
-// handleReload triggers squid reconfiguration
-func handleReload(c *gin.Context) {
-	if err := reloadSquid(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "ERROR", "error": err.Error()})
-		return
-	}
-	// brief delay to allow reconfigure
-	time.Sleep(300 * time.Millisecond)
-	c.JSON(http.StatusOK, gin.H{"status": squidStatus()})
 }
 
 // handleClearAllLogs clears all access logs (whitelist, blacklist, and regular)
