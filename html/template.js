@@ -8,6 +8,12 @@ const EMOJI = {
     TRASH: '🗑️'
 };
 
+// Action button constants
+const ACTION_BUTTONS = {
+    TO_WHITELIST: '👉✅',
+    TO_BLACKLIST: '👉🚫'
+};
+
 function reloadSquid() {
     fetch('/reload', { method: 'POST' })
         .then(res => res.json())
@@ -56,7 +62,7 @@ function renderFilteredSummary(rows) {
     });
     
     // Build HTML table
-    let html = '<table class="summary-table"><tr><th>Actions</th><th>Domain</th><th>Count</th><th>Status</th></tr>';
+    let html = '<table class="summary-table"><tr><th>Actions</th><th></th><th>Domain</th><th>Count</th></tr>';
     
     filteredRows.forEach(row => {
         let cls = "unknown";
@@ -71,16 +77,16 @@ function renderFilteredSummary(rows) {
         const domain = escapeHtml(row.domain);
         if (row.status === EMOJI.WHITELIST) {
             // Whitelisted: can move to blacklist
-            actions = `<button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button>`;
+            actions = `<button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">${ACTION_BUTTONS.TO_BLACKLIST}</button>`;
         } else if (row.status === EMOJI.BLACKLIST) {
             // Blacklisted: can move to whitelist
-            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button>`;
+            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">${ACTION_BUTTONS.TO_WHITELIST}</button>`;
         } else {
             // Unknown: can move to whitelist or blacklist
-            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button> <button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button>`;
+            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">${ACTION_BUTTONS.TO_WHITELIST}</button> <button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">${ACTION_BUTTONS.TO_BLACKLIST}</button>`;
         }
         
-        html += `<tr><td>${actions}</td><td>${domain}</td><td>${row.count}</td><td class="status ${cls}">${row.status}</td></tr>`;
+        html += `<tr><td>${actions}</td><td class="status ${cls}">${row.status}</td><td>${domain}</td><td>${row.count}</td></tr>`;
     });
     
     html += '</table>';
@@ -172,7 +178,7 @@ function renderListTable(listType, content) {
         // Create buttons programmatically to avoid escaping issues
         const moveBtn = document.createElement('button');
         moveBtn.className = listType === 'whitelist' ? 'action-btn bl' : 'action-btn wl';
-        moveBtn.textContent = listType === 'whitelist' ? '→ BL' : '→ WL';
+        moveBtn.textContent = listType === 'whitelist' ? ACTION_BUTTONS.TO_BLACKLIST : ACTION_BUTTONS.TO_WHITELIST;
         moveBtn.onclick = () => moveFromList(entry.domain, listType, listType === 'whitelist' ? 'blacklist' : 'whitelist');
         
         const removeBtn = document.createElement('button');

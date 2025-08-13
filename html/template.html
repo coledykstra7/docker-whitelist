@@ -25,7 +25,7 @@
 <form method="POST" action="/save">
     <div class="grid">
         <div>
-            <h2>Whitelist</h2>
+            <h2>✅ Whitelist</h2>
             <div id="whitelist-table-container">
                 <table class="list-table" id="whitelist-table">
                     <tr><th>Actions</th><th>Domain</th><th>Note</th></tr>
@@ -39,7 +39,7 @@
             <textarea name="whitelist" id="whitelist-hidden" style="display:none;">{{.Whitelist}}</textarea>
         </div>
         <div>
-            <h2>Blacklist</h2>
+            <h2>🚫 Blacklist</h2>
             <div id="blacklist-table-container">
                 <table class="list-table" id="blacklist-table">
                     <tr><th>Actions</th><th>Domain</th><th>Note</th></tr>
@@ -58,9 +58,9 @@
 <h2>Access Log Summary (Live)</h2>
 <div class="summary-box" id="summary-box">
     <div style="margin-bottom:8px">
-        <label><input type="checkbox" id="filterWL" checked> WL (✅)</label>
-        <label><input type="checkbox" id="filterBL" checked> BL (❌)</label>
-        <label><input type="checkbox" id="filterRG" checked> RG (❓)</label>
+        <label><input type="checkbox" id="filterWL" checked> (✅)</label>
+        <label><input type="checkbox" id="filterBL" checked> (🚫)</label>
+        <label><input type="checkbox" id="filterRG" checked> (❓)</label>
     </div>
     <div id="summary-content"></div>
     <p><span class="status whitelist">✅ Whitelisted</span> <span class="status blacklist">❌ Blacklisted</span> <span class="status unknown">❓ Unknown</span></p>
