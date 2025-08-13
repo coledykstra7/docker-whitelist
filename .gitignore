@@ -7,6 +7,10 @@ squid-editor
 data/*.log
 *.log
 
+# Domain list files (user-specific runtime data)
+data/whitelist.txt
+data/blacklist.txt
+
 # Go build/test artifacts
 *.out
 coverage.out
