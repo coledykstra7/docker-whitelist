@@ -91,6 +91,7 @@ func parseDomainEntry(line string) DomainEntry {
 	domain := strings.TrimSpace(parts[0])
 	note := ""
 	if len(parts) > 1 {
+		// Handle both formats: "domain#note" and "domain # note" and "domain  # note"
 		note = strings.TrimSpace(parts[1])
 	}
 	
@@ -149,19 +150,29 @@ func sortAndJoinDomainList(domains []string) string {
 	
 	// Parse entries
 	entries := make([]DomainEntry, 0, len(domains))
+	maxDomainLen := 0
 	for _, domain := range domains {
 		if entry := parseDomainEntry(domain); entry.Domain != "" {
 			entries = append(entries, entry)
+			if len(entry.Domain) > maxDomainLen {
+				maxDomainLen = len(entry.Domain)
+			}
 		}
 	}
 	
 	// Sort entries
 	sortDomainEntries(entries)
 	
-	// Convert back to strings
+	// Convert back to strings with column alignment
 	result := make([]string, len(entries))
 	for i, entry := range entries {
-		result[i] = entry.Full
+		if entry.Note != "" {
+			// Pad domain to align notes in a column
+			padding := maxDomainLen - len(entry.Domain) + 2 // 2 extra spaces
+			result[i] = entry.Domain + strings.Repeat(" ", padding) + "# " + entry.Note
+		} else {
+			result[i] = entry.Domain
+		}
 	}
 	
 	return strings.Join(result, "\n")
