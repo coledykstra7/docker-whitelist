@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
@@ -45,7 +46,8 @@ func ParseLogEntry(line string) (*LogEntry, error) {
 }
 
 // File paths for configuration and logs
-const (
+// These are variables so they can be overridden for testing
+var (
 	whitelistPath          = "/data/whitelist.txt"
 	blacklistPath          = "/data/blacklist.txt"
 	accessLogRegularPath   = "/data/access-regular.log"
@@ -53,6 +55,15 @@ const (
 	accessLogBlacklistPath = "/data/access-blacklist.log"
 	// Note: Access to individual log files should go through mergeLogFiles() function
 )
+
+// Helper function to set test data directory
+func setTestDataDir(dataDir string) {
+	whitelistPath = filepath.Join(dataDir, "whitelist.txt")
+	blacklistPath = filepath.Join(dataDir, "blacklist.txt")
+	accessLogRegularPath = filepath.Join(dataDir, "access-regular.log")
+	accessLogWhitelistPath = filepath.Join(dataDir, "access-whitelist.log")
+	accessLogBlacklistPath = filepath.Join(dataDir, "access-blacklist.log")
+}
 
 // Application constants
 const (
