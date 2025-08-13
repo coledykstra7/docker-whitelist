@@ -59,7 +59,28 @@ function updateLog() {
     fetch('/log')
         .then(res => res.text())
         .then(text => {
-            document.getElementById('log').textContent = text;
+            const logElement = document.getElementById('log');
+            // Split text into lines and process each line for color coding
+            const lines = text.split('\n');
+            const processedLines = lines.map(line => {
+                if (line.trim() === '') return line;
+                
+                // Check for WL, BL, or RG tags (should be second field after timestamp)
+                const fields = line.split(' ');
+                if (fields.length >= 2) {
+                    const tag = fields[1];
+                    if (tag === 'WL') {
+                        return `<span class="log-WL">${line}</span>`;
+                    } else if (tag === 'BL') {
+                        return `<span class="log-BL">${line}</span>`;
+                    } else if (tag === 'RG') {
+                        return `<span class="log-RG">${line}</span>`;
+                    }
+                }
+                return line;
+            });
+            
+            logElement.innerHTML = processedLines.join('\n');
         });
 }
 
