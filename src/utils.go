@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -164,4 +165,24 @@ func sortAndJoinDomainList(domains []string) string {
 	}
 	
 	return strings.Join(result, "\n")
+}
+
+// writeDomainList handles all whitelist/blacklist file writes with consistent sorting
+func writeDomainList(listType string, domains []string) error {
+	var filePath string
+	switch listType {
+	case "whitelist":
+		filePath = whitelistPath
+	case "blacklist":
+		filePath = blacklistPath
+	default:
+		return fmt.Errorf("invalid list type: %s", listType)
+	}
+	
+	sortedContent := sortAndJoinDomainList(domains)
+	err := writeFile(filePath, sortedContent)
+	if err == nil {
+		_ = reloadSquid() // Always reload after successful write
+	}
+	return err
 }

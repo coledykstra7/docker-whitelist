@@ -45,20 +45,18 @@ func handleSave(c *gin.Context) {
 	wl := c.PostForm("whitelist")
 	bl := c.PostForm("blacklist")
 	
-	// Sort the domain lists before saving
+	// Parse domain lists
 	wlDomains := parseDomainList(wl)
 	blDomains := parseDomainList(bl)
-	sortedWL := sortAndJoinDomainList(wlDomains)
-	sortedBL := sortAndJoinDomainList(blDomains)
 	
-	err1 := writeFile(whitelistPath, sortedWL)
-	err2 := writeFile(blacklistPath, sortedBL)
+	// Write using centralized function
+	err1 := writeDomainList("whitelist", wlDomains)
+	err2 := writeDomainList("blacklist", blDomains)
+	
 	if err1 != nil || err2 != nil {
 		c.String(http.StatusInternalServerError, "save error: %v %v", err1, err2)
 		return
 	}
-	// Optionally reload squid after save
-	_ = reloadSquid()
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
@@ -180,20 +178,14 @@ func handleMoveDomain(c *gin.Context) {
 	// "unknown" means just remove from both lists (already done above)
 	}
 	
-	// Sort domain lists by note first, then by domain parts
-	newWhitelistContent := sortAndJoinDomainList(whitelistDomains)
-	newBlacklistContent := sortAndJoinDomainList(blacklistDomains)
-	
-	err1 := writeFile(whitelistPath, newWhitelistContent)
-	err2 := writeFile(blacklistPath, newBlacklistContent)
+	// Write using centralized functions
+	err1 := writeDomainList("whitelist", whitelistDomains)
+	err2 := writeDomainList("blacklist", blacklistDomains)
 	
 	if err1 != nil || err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": fmt.Sprintf("write error: %v %v", err1, err2)})
 		return
 	}
-	
-	// Reload squid configuration
-	_ = reloadSquid()
 	
 	c.JSON(http.StatusOK, gin.H{"status": "success", "domain": domain, "target": target})
 }

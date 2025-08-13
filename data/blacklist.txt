@@ -1,4 +1,3 @@
-mozilla.cloudflare-dns.com #essentialed.com
 order.essentialed.com #essentialed.com
 detectportal.firefox.com #essentialed.com
 translate.google.com #essentialed.com
