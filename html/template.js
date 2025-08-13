@@ -177,11 +177,13 @@ function renderListTable(listType, content) {
         
         // Create buttons programmatically to avoid escaping issues
         const moveBtn = document.createElement('button');
+        moveBtn.type = 'button';  // Prevent form submission
         moveBtn.className = listType === 'whitelist' ? 'action-btn bl' : 'action-btn wl';
         moveBtn.textContent = listType === 'whitelist' ? ACTION_BUTTONS.TO_BLACKLIST : ACTION_BUTTONS.TO_WHITELIST;
         moveBtn.onclick = () => moveFromList(entry.domain, listType, listType === 'whitelist' ? 'blacklist' : 'whitelist');
         
         const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';  // Prevent form submission
         removeBtn.className = 'remove-btn';
         removeBtn.textContent = EMOJI.TRASH;
         removeBtn.onclick = () => removeFromList(entry.domain, listType);
