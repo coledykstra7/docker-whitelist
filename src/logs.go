@@ -90,36 +90,6 @@ func computeSummaryRows(logText string) []Row {
 	return rows
 }
 
-// filterLogAfterSetpoint keeps only lines whose first field (float or int) is > setpoint
-func filterLogAfterSetpoint(logText string, setpoint float64) string {
-	if setpoint <= 0 {
-		return logText
-	}
-	var out []string
-	for _, line := range strings.Split(logText, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		f := strings.Fields(line)
-		if len(f) == 0 {
-			continue
-		}
-		ts, err := strconv.ParseFloat(f[0], 64)
-		if err != nil {
-			continue
-		}
-		if ts > setpoint {
-			out = append(out, line)
-		}
-	}
-	result := strings.Join(out, "\n")
-	if len(out) > 0 {
-		result += "\n"
-	}
-	return result
-}
-
 // mergeLogFiles reads the three categorized logs, parses first field as timestamp,
 // merges and returns them in chronological order as a single string (ending with \n if any records).
 func mergeLogFiles() string {
@@ -160,7 +130,7 @@ func mergeLogFiles() string {
 				recs = append(recs, rec{ts: 0, line: line})
 				continue
 			}
-			// Inject tag as second field (after timestamp) so timestamp stays first for setpoint filtering
+			// Inject tag as second field (after timestamp) for categorization
 			// Preserve original spacing after first token
 			rest := strings.TrimPrefix(line, f[0])
 			taggedLine := f[0] + " " + ft.tag + rest

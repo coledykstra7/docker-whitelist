@@ -8,25 +8,42 @@ function reloadSquid() {
         });
 }
 
-function setSetpoint() {
-    fetch('/setpoint', { method: 'POST' })
+function clearWhitelistLog() {
+    fetch('/clear-whitelist', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            document.getElementById('setpointDisplay').textContent = data.setpoint || 'set';
+            alert(data.status || 'Whitelist log cleared');
+            updateSummary();
+            updateLog();
         })
         .catch(err => {
-            console.error('Error setting setpoint:', err);
+            console.error('Error clearing whitelist log:', err);
         });
 }
 
-function clearSetpoint() {
-    fetch('/clear', { method: 'POST' })
+function clearBlacklistLog() {
+    fetch('/clear-blacklist', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-            document.getElementById('setpointDisplay').textContent = 'none';
+            alert(data.status || 'Blacklist log cleared');
+            updateSummary();
+            updateLog();
         })
         .catch(err => {
-            console.error('Error clearing setpoint:', err);
+            console.error('Error clearing blacklist log:', err);
+        });
+}
+
+function clearRegularLog() {
+    fetch('/clear-regular', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.status || 'Regular log cleared');
+            updateSummary();
+            updateLog();
+        })
+        .catch(err => {
+            console.error('Error clearing regular log:', err);
         });
 }
 

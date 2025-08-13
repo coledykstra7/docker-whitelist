@@ -28,7 +28,17 @@ table.summary-table th{background:#d6ead6;}
 <script src="/static/template.js"></script>
 </head>
 <body>
-<div class="ctrl-panel"><div><strong>Controls</strong></div><div style="margin-top:4px">Squid: <span id="squidStatus">...</span> <button id="reloadBtn" type="button" onclick="reloadSquid()">Reload</button></div><div style="margin-top:4px"><label><input type="checkbox" id="autoRefresh" checked/> Auto-Refresh (5s)</label></div><div style="margin-top:4px">Setpoint: <span id="setpointDisplay">none</span><button type="button" onclick="setSetpoint()">Set</button><button type="button" onclick="clearSetpoint()">Clear</button></div></div>
+<div class="ctrl-panel">
+    <div><strong>Controls</strong></div>
+    <div style="margin-top:4px">Squid: <span id="squidStatus">...</span> <button id="reloadBtn" type="button" onclick="reloadSquid()">Reload</button></div>
+    <div style="margin-top:4px"><label><input type="checkbox" id="autoRefresh" checked/> Auto-Refresh (5s)</label></div>
+    <div style="margin-top:4px">
+        <strong>Clear Logs:</strong><br>
+        <button type="button" onclick="clearWhitelistLog()">Clear WL</button>
+        <button type="button" onclick="clearBlacklistLog()">Clear BL</button>
+        <button type="button" onclick="clearRegularLog()">Clear RG</button>
+    </div>
+</div>
 <h1>Squid Proxy List Editor</h1>
 <form method="POST" action="/save"><div class="grid"><div><h2>Whitelist</h2><textarea name="whitelist" rows="14" spellcheck="false">{{.Whitelist}}</textarea></div><div><h2>Blacklist</h2><textarea name="blacklist" rows="14" spellcheck="false">{{.Blacklist}}</textarea></div></div><p><button type="submit">Save</button></p></form>
 <h2>Access Log Summary (Live)</h2>
