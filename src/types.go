@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+// Emoji constants for status indicators
+const (
+	EmojiWhitelist = "✅" // WL status
+	EmojiBlacklist = "🚫" // BL status  
+	EmojiUnknown   = "❓" // RG status
+	EmojiTrash     = "🗑️" // Delete button (for consistency with JS)
+)
+
 // Row represents a domain entry with access statistics
 type Row struct {
 	Domain string `json:"domain"`

@@ -30,16 +30,16 @@ func computeSummaryRows(logText string) []Row {
 		var status string
 		switch entry.Tag {
 		case "WL":
-			status = "✅"
+			status = EmojiWhitelist
 		case "BL":
-			status = "❌"
+			status = EmojiBlacklist
 		default:
-			status = "❓"
+			status = EmojiUnknown
 		}
 		
 		val := counts[host]
 		// If status is more severe (❌ > ✅ > ❓), keep highest
-		if val.status == "❌" || (val.status == "✅" && status == "❓") {
+		if val.status == EmojiBlacklist || (val.status == EmojiWhitelist && status == EmojiUnknown) {
 			counts[host] = stat{val.count + 1, val.status}
 		} else {
 			counts[host] = stat{val.count + 1, status}

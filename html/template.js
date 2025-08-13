@@ -1,5 +1,13 @@
 // JavaScript for Squid Proxy List Editor
 
+// Emoji constants
+const EMOJI = {
+    WHITELIST: '✅',
+    BLACKLIST: '🚫', 
+    UNKNOWN: '❓',
+    TRASH: '🗑️'
+};
+
 function reloadSquid() {
     fetch('/reload', { method: 'POST' })
         .then(res => res.json())
@@ -41,9 +49,9 @@ function renderFilteredSummary(rows) {
     
     // Filter rows based on checkbox states
     const filteredRows = rows.filter(row => {
-        if (row.status === '✅' && !showWL) return false;
-        if (row.status === '❌' && !showBL) return false;
-        if (row.status === '❓' && !showRG) return false;
+        if (row.status === EMOJI.WHITELIST && !showWL) return false;
+        if (row.status === EMOJI.BLACKLIST && !showBL) return false;
+        if (row.status === EMOJI.UNKNOWN && !showRG) return false;
         return true;
     });
     
@@ -52,19 +60,19 @@ function renderFilteredSummary(rows) {
     
     filteredRows.forEach(row => {
         let cls = "unknown";
-        if (row.status === "✅") {
+        if (row.status === EMOJI.WHITELIST) {
             cls = "whitelist";
-        } else if (row.status === "❌") {
+        } else if (row.status === EMOJI.BLACKLIST) {
             cls = "blacklist";
         }
         
         // Generate action buttons based on current status
         let actions = "";
         const domain = escapeHtml(row.domain);
-        if (row.status === "✅") {
+        if (row.status === EMOJI.WHITELIST) {
             // Whitelisted: can move to blacklist
             actions = `<button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button>`;
-        } else if (row.status === "❌") {
+        } else if (row.status === EMOJI.BLACKLIST) {
             // Blacklisted: can move to whitelist
             actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button>`;
         } else {
@@ -169,7 +177,7 @@ function renderListTable(listType, content) {
         
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-btn';
-        removeBtn.textContent = '✕';
+        removeBtn.textContent = EMOJI.TRASH;
         removeBtn.onclick = () => removeFromList(entry.domain, listType);
         
         actionsCell.appendChild(moveBtn);

@@ -12,19 +12,19 @@ func buildTableHTML(rows []Row) string {
 	sb.WriteString("<table class=\"summary-table\"><tr><th>Domain</th><th>Count</th><th>Status</th><th>Actions</th></tr>")
 	for _, r := range rows {
 		cls := "unknown"
-		if r.Status == "✅" {
+		if r.Status == EmojiWhitelist {
 			cls = "whitelist"
-		} else if r.Status == "❌" {
+		} else if r.Status == EmojiBlacklist {
 			cls = "blacklist"
 		}
 		
 		// Generate action buttons based on current status
 		var actions string
 		domain := html.EscapeString(r.Domain)
-		if r.Status == "✅" {
+		if r.Status == EmojiWhitelist {
 			// Whitelisted: can move to blacklist or remove (make unknown)
 			actions = fmt.Sprintf(`<button onclick="moveDomain('%s', 'blacklist')" class="action-btn bl">→ BL</button> <button onclick="moveDomain('%s', 'unknown')" class="action-btn unknown">→ ?</button>`, domain, domain)
-		} else if r.Status == "❌" {
+		} else if r.Status == EmojiBlacklist {
 			// Blacklisted: can move to whitelist or remove (make unknown)  
 			actions = fmt.Sprintf(`<button onclick="moveDomain('%s', 'whitelist')" class="action-btn wl">→ WL</button> <button onclick="moveDomain('%s', 'unknown')" class="action-btn unknown">→ ?</button>`, domain, domain)
 		} else {
