@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -33,9 +34,11 @@ func registerRoutes(r *gin.Engine) {
 	r.POST("/clear-whitelist", handleClearWhitelistLog)
 	r.POST("/clear-blacklist", handleClearBlacklistLog)
 	r.POST("/clear-regular", handleClearRegularLog)
+	r.POST("/move-domain", handleMoveDomain)
 	r.GET("/", handleHome)
 	r.GET("/summary", handleSummary)
 	r.GET("/log", handleLog)
+	r.GET("/lists", handleLists)
 }
 
 // handleSave processes whitelist/blacklist updates
@@ -134,4 +137,91 @@ func handleLog(c *gin.Context) {
 	tail := strings.Join(lines, "\n")
 	c.Header("Content-Type", "text/plain; charset=utf-8")
 	c.String(http.StatusOK, tail)
+}
+
+// handleMoveDomain moves a domain between whitelist, blacklist, or unknown status
+func handleMoveDomain(c *gin.Context) {
+	domain := strings.TrimSpace(c.PostForm("domain"))
+	target := strings.TrimSpace(c.PostForm("target"))
+	
+	if domain == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "domain is required"})
+		return
+	}
+	
+	if target != "whitelist" && target != "blacklist" && target != "unknown" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "target must be whitelist, blacklist, or unknown"})
+		return
+	}
+	
+	// Read current whitelist and blacklist
+	whitelistContent := readFile(whitelistPath)
+	blacklistContent := readFile(blacklistPath)
+	
+	// Parse into slices
+	whitelistDomains := parseDomainList(whitelistContent)
+	blacklistDomains := parseDomainList(blacklistContent)
+	
+	// Remove domain from both lists first
+	whitelistDomains = removeDomain(whitelistDomains, domain)
+	blacklistDomains = removeDomain(blacklistDomains, domain)
+	
+	// Add to target list if not unknown
+	switch target {
+	case "whitelist":
+		whitelistDomains = append(whitelistDomains, domain)
+	case "blacklist":
+		blacklistDomains = append(blacklistDomains, domain)
+	// "unknown" means just remove from both lists (already done above)
+	}
+	
+	// Write back to files
+	newWhitelistContent := strings.Join(whitelistDomains, "\n")
+	newBlacklistContent := strings.Join(blacklistDomains, "\n")
+	
+	err1 := writeFile(whitelistPath, newWhitelistContent)
+	err2 := writeFile(blacklistPath, newBlacklistContent)
+	
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": fmt.Sprintf("write error: %v %v", err1, err2)})
+		return
+	}
+	
+	// Reload squid configuration
+	_ = reloadSquid()
+	
+	c.JSON(http.StatusOK, gin.H{"status": "success", "domain": domain, "target": target})
+}
+
+// parseDomainList parses a domain list content into a slice of domains
+func parseDomainList(content string) []string {
+	var domains []string
+	for _, line := range strings.Split(content, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "#") {
+			domains = append(domains, line)
+		}
+	}
+	return domains
+}
+
+// removeDomain removes a domain from a slice of domains
+func removeDomain(domains []string, target string) []string {
+	var result []string
+	for _, domain := range domains {
+		if domain != target {
+			result = append(result, domain)
+		}
+	}
+	return result
+}
+
+// handleLists returns the current whitelist and blacklist content as JSON
+func handleLists(c *gin.Context) {
+	wl := readFile(whitelistPath)
+	bl := readFile(blacklistPath)
+	c.JSON(http.StatusOK, gin.H{
+		"whitelist": wl,
+		"blacklist": bl,
+	})
 }

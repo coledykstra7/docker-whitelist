@@ -84,6 +84,18 @@ function updateLog() {
         });
 }
 
+function updateLists() {
+    fetch('/lists')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelector('textarea[name="whitelist"]').value = data.whitelist;
+            document.querySelector('textarea[name="blacklist"]').value = data.blacklist;
+        })
+        .catch(err => {
+            console.error('Error updating lists:', err);
+        });
+}
+
 function setupAutoRefresh() {
     let autoRefresh = document.getElementById('autoRefresh');
     let intervalId = null;
@@ -101,6 +113,32 @@ function setupAutoRefresh() {
     if (autoRefresh.checked) {
         intervalId = setInterval(refresh, 5000);
     }
+}
+
+function moveDomain(domain, targetStatus) {
+    const data = new FormData();
+    data.append('domain', domain);
+    data.append('target', targetStatus);
+    
+    fetch('/move-domain', { 
+        method: 'POST',
+        body: data
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Refresh the summary, log, and the whitelist/blacklist textareas
+            updateSummary();
+            updateLog();
+            updateLists();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to move domain'));
+        }
+    })
+    .catch(err => {
+        console.error('Error moving domain:', err);
+        alert('Error moving domain: ' + err.message);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

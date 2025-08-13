@@ -1,36 +1,13 @@
-# Squid whitelist domains
-# Only one domain per line, no blank lines
 reentry.careeronestop.org
-
-##################################################
-# Here is my Squid whitelist for essentialed.com #
-##################################################
-
-###############################
-# These are wildcard entries: #
-###############################
 .essentialed.com
 .passged.com
-
-########################################################
-# The wistia entries are more specific, to allow video #
-# but keep the separate website wistia.com blocked     #
-########################################################
 distillery.wistia.com
 embed-cloudfront.wistia.com
 embed-ssl.wistia.com
 fast.wistia.com
 fast.wistia.net
 pipedream.wistia.com
-
 .alaskasafetyalliance.org
 d3ogvqw9m2inp7.cloudfront.net
-
-# this site seems self-contained with one exception
 alaskajobs.alaska.gov
-
 my.alaska.gov
-# is required by:
-#   Register or Sign In
-#   Resume Builder
-#   Employers - Post a Job

@@ -1,5 +1,6 @@
-# blacklist.txt
 .google.com
 .firefox.com
 .mozilla.com
 .googleapis.com
+www.googletagmanager.com
+ads.mozilla.org
