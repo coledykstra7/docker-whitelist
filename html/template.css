@@ -119,6 +119,45 @@ table.summary-table th {
     border-color: #cbd5e1;
 }
 
+.action-btn.ai {
+    background: #e0e7ff;
+    color: #4338ca;
+    border-color: #c7d2fe;
+}
+
+.action-btn.link {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+
+/* Inline Buttons (next to domain text) */
+.inline-btn {
+    font-size: 0.7rem;
+    padding: 1px 3px;
+    margin: 0 2px;
+    border: 1px solid;
+    border-radius: 2px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.inline-btn.ai {
+    background: #e0e7ff;
+    color: #4338ca;
+    border-color: #c7d2fe;
+}
+
+.inline-btn.link {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+}
+
+.inline-btn:hover {
+    opacity: 0.8;
+}
+
 .action-btn:hover {
     opacity: 0.8;
 }

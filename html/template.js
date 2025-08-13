@@ -5,7 +5,9 @@ const EMOJI = {
     WHITELIST: '✅',
     BLACKLIST: '🚫', 
     UNKNOWN: '❓',
-    TRASH: '🗑️'
+    TRASH: '🗑️',
+    AI: '💡',
+    LINK: '🔗'
 };
 
 // Action button constants
@@ -13,6 +15,22 @@ const ACTION_BUTTONS = {
     TO_WHITELIST: '👉✅',
     TO_BLACKLIST: '👉🚫'
 };
+
+// AI query prefix
+const AI_QUERY_PREFIX = 'pros cons of whitelisting';
+const AI_QUERY_SUFFIX = 'to provide ACCESS_NOTE for prisoners';
+
+// Function to build tooltip text for AI button
+function buildAITooltip(domain, note = '') {
+    const suffix = note ? AI_QUERY_SUFFIX.replace('ACCESS_NOTE', note) : '';
+    return `${AI_QUERY_PREFIX} ${domain} ${suffix}`.trim();
+}
+
+// Function to build ChatGPT URL with domain query
+function buildChatGPTUrl(domain, note = '') {
+    const query = buildAITooltip(domain, note);
+    return `https://chatgpt.com/?q=${encodeURIComponent(query)}`;
+}
 
 function clearAllLogs() {
     if (!confirm('Clear all access logs (WL, BL, and RG)? This cannot be undone.')) {
@@ -78,7 +96,9 @@ function renderFilteredSummary(rows) {
             actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">${ACTION_BUTTONS.TO_WHITELIST}</button> <button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">${ACTION_BUTTONS.TO_BLACKLIST}</button>`;
         }
         
-        html += `<tr><td>${actions}</td><td class="status ${cls}">${row.status}</td><td>${domain}</td><td>${row.count}</td></tr>`;
+        const domainWithButtons = `${domain} <button type="button" class="inline-btn ai" title="${buildAITooltip(domain)}" onclick="window.open(buildChatGPTUrl('${domain}'), '_blank')">${EMOJI.AI}</button> <button type="button" class="inline-btn link" title="${domain}" onclick="window.open('https://${domain}', '_blank')">${EMOJI.LINK}</button>`;
+        
+        html += `<tr><td>${actions}</td><td class="status ${cls}">${row.status}</td><td>${domainWithButtons}</td><td>${row.count}</td></tr>`;
     });
     
     html += '</table>';
@@ -161,6 +181,27 @@ function renderListTable(listType, content) {
         
         // Set content
         domainCell.textContent = entry.domain;
+        
+        // Add AI and Link buttons right after the domain text
+        const aiBtn = document.createElement('button');
+        aiBtn.type = 'button';
+        aiBtn.className = 'inline-btn ai';
+        aiBtn.textContent = EMOJI.AI;
+        aiBtn.title = buildAITooltip(entry.domain, entry.note);
+        aiBtn.onclick = () => window.open(buildChatGPTUrl(entry.domain, entry.note), '_blank');
+        
+        const linkBtn = document.createElement('button');
+        linkBtn.type = 'button';
+        linkBtn.className = 'inline-btn link';
+        linkBtn.textContent = EMOJI.LINK;
+        linkBtn.title = entry.domain;
+        linkBtn.onclick = () => window.open(`https://${entry.domain}`, '_blank');
+        
+        domainCell.appendChild(document.createTextNode(' '));
+        domainCell.appendChild(aiBtn);
+        domainCell.appendChild(document.createTextNode(' '));
+        domainCell.appendChild(linkBtn);
+        
         noteCell.textContent = entry.note;
         
         // Create buttons programmatically to avoid escaping issues
