@@ -62,11 +62,11 @@ function renderFilteredSummary(rows) {
         let actions = "";
         const domain = escapeHtml(row.domain);
         if (row.status === "✅") {
-            // Whitelisted: can move to blacklist or remove (make unknown)
-            actions = `<button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button> <button onclick="moveDomain('${domain}', 'unknown')" class="action-btn unknown">→ ?</button>`;
+            // Whitelisted: can move to blacklist
+            actions = `<button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button>`;
         } else if (row.status === "❌") {
-            // Blacklisted: can move to whitelist or remove (make unknown)  
-            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button> <button onclick="moveDomain('${domain}', 'unknown')" class="action-btn unknown">→ ?</button>`;
+            // Blacklisted: can move to whitelist
+            actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button>`;
         } else {
             // Unknown: can move to whitelist or blacklist
             actions = `<button onclick="moveDomain('${domain}', 'whitelist')" class="action-btn wl">→ WL</button> <button onclick="moveDomain('${domain}', 'blacklist')" class="action-btn bl">→ BL</button>`;
@@ -146,17 +146,35 @@ function renderListTable(listType, content) {
     // Add rows for each entry
     entries.forEach(entry => {
         const row = table.insertRow();
-        row.innerHTML = `
-            <td class="actions-col">
-                ${listType === 'whitelist' ? 
-                    `<button onclick="moveFromList('${escapeHtml(entry.domain)}', 'whitelist', 'blacklist')" class="action-btn bl">→ BL</button>` :
-                    `<button onclick="moveFromList('${escapeHtml(entry.domain)}', 'blacklist', 'whitelist')" class="action-btn wl">→ WL</button>`
-                }
-                <button onclick="removeFromList('${escapeHtml(entry.domain)}', '${listType}')" class="remove-btn">✕</button>
-            </td>
-            <td class="domain-col">${escapeHtml(entry.domain)}</td>
-            <td class="note-col">${escapeHtml(entry.note)}</td>
-        `;
+        
+        // Create cells
+        const actionsCell = row.insertCell(0);
+        const domainCell = row.insertCell(1);
+        const noteCell = row.insertCell(2);
+        
+        // Set cell classes
+        actionsCell.className = 'actions-col';
+        domainCell.className = 'domain-col';
+        noteCell.className = 'note-col';
+        
+        // Set content
+        domainCell.textContent = entry.domain;
+        noteCell.textContent = entry.note;
+        
+        // Create buttons programmatically to avoid escaping issues
+        const moveBtn = document.createElement('button');
+        moveBtn.className = listType === 'whitelist' ? 'action-btn bl' : 'action-btn wl';
+        moveBtn.textContent = listType === 'whitelist' ? '→ BL' : '→ WL';
+        moveBtn.onclick = () => moveFromList(entry.domain, listType, listType === 'whitelist' ? 'blacklist' : 'whitelist');
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = '✕';
+        removeBtn.onclick = () => removeFromList(entry.domain, listType);
+        
+        actionsCell.appendChild(moveBtn);
+        actionsCell.appendChild(document.createTextNode(' '));
+        actionsCell.appendChild(removeBtn);
     });
 }
 

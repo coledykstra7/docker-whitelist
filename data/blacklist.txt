@@ -5,3 +5,4 @@
 www.googletagmanager.com
 ads.mozilla.org
 incoming.telemetry.mozilla.org #essentialed.com
+mozilla.cloudflare-dns.com #essentialed.com

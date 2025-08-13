@@ -11,3 +11,4 @@ pipedream.wistia.com
 d3ogvqw9m2inp7.cloudfront.net
 alaskajobs.alaska.gov
 my.alaska.gov
+app.essentialed.com #essentialed.com
